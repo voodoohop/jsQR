@@ -17,6 +17,13 @@ export interface QRCode {
 }
 export interface Options {
     inversionAttempts?: "dontInvert" | "onlyInvert" | "attemptBoth" | "invertFirst";
+    greyScaleWeights?: GreyscaleWeights;
+}
+export interface GreyscaleWeights {
+    red: number;
+    green: number;
+    blue: number;
+    useIntegerApproximation?: boolean;
 }
 declare function jsQR(data: Uint8ClampedArray, width: number, height: number, providedOptions?: Options): QRCode | null;
 export default jsQR;

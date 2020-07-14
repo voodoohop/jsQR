@@ -411,6 +411,7 @@ function decode(data, version) {
     while (stream.available() >= 4) {
         const mode = stream.readBits(4);
         if (mode === ModeByte.Terminator) {
+            console.log("found terminator", terminatorCount);
             if (terminatorCount == 0)
                 terminatorCount++;
             else

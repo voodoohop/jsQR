@@ -228,9 +228,15 @@ export function decode(data: Uint8ClampedArray, version: number): DecodedQR {
   while (stream.available() >= 4) {
     const mode = stream.readBits(4);
     if (mode === ModeByte.Terminator) {
-      console.log("found terminator", terminatorCount);
-      if (terminatorCount == 0) terminatorCount++;
-      else return result;
+      // console.log("found terminator", terminatorCount);
+      if (terminatorCount == 0) {
+        terminatorCount++;
+        result.text += "---";
+        result.chunks.push({
+          type: Mode.Alphanumeric,
+          text: "---",
+        });
+      } else return result;
     } else if (mode === ModeByte.ECI) {
       if (stream.readBits(1) === 0) {
         result.chunks.push({

@@ -297,11 +297,51 @@ function decodeNumeric(stream, size) {
     return { bytes, text };
 }
 const AlphanumericCharacterCodes = [
-    "0", "1", "2", "3", "4", "5", "6", "7", "8",
-    "9", "A", "B", "C", "D", "E", "F", "G", "H",
-    "I", "J", "K", "L", "M", "N", "O", "P", "Q",
-    "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-    " ", "$", "%", "*", "+", "-", ".", "/", ":",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    " ",
+    "$",
+    "%",
+    "*",
+    "+",
+    "-",
+    ".",
+    "/",
+    ":",
 ];
 function decodeAlphanumeric(stream, size) {
     const bytes = [];
@@ -333,7 +373,7 @@ function decodeByte(stream, size) {
         bytes.push(b);
     }
     try {
-        text += decodeURIComponent(bytes.map(b => `%${("0" + b.toString(16)).substr(-2)}`).join(""));
+        text += decodeURIComponent(bytes.map((b) => `%${("0" + b.toString(16)).substr(-2)}`).join(""));
     }
     catch (_a) {
         // failed to decode
@@ -346,14 +386,14 @@ function decodeKanji(stream, size) {
     const length = stream.readBits(characterCountSize);
     for (let i = 0; i < length; i++) {
         const k = stream.readBits(13);
-        let c = (Math.floor(k / 0xC0) << 8) | (k % 0xC0);
-        if (c < 0x1F00) {
+        let c = (Math.floor(k / 0xc0) << 8) | k % 0xc0;
+        if (c < 0x1f00) {
             c += 0x8140;
         }
         else {
-            c += 0xC140;
+            c += 0xc140;
         }
-        bytes.push(c >> 8, c & 0xFF);
+        bytes.push(c >> 8, c & 0xff);
     }
     const text = new TextDecoder("shift-jis").decode(Uint8Array.from(bytes));
     return { bytes, text };
@@ -367,10 +407,14 @@ function decode(data, version) {
         bytes: [],
         chunks: [],
     };
+    let terminatorCount = 0;
     while (stream.available() >= 4) {
         const mode = stream.readBits(4);
         if (mode === ModeByte.Terminator) {
-            return result;
+            if (terminatorCount == 0)
+                terminatorCount++;
+            else
+                return result;
         }
         else if (mode === ModeByte.ECI) {
             if (stream.readBits(1) === 0) {
